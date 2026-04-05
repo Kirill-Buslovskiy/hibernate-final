@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import java.math.BigDecimal;
 
@@ -26,6 +27,7 @@ public class CountryLanguage {
     private String language;
 
     @Column(name = "is_official", columnDefinition = "TINYINT(1)")
+    @Type(type = "org.hibernate.type.NumericBooleanType")
     private Boolean isOfficial;
 
     private BigDecimal percentage;
