@@ -5,10 +5,13 @@ import entity.City;
 import entity.Country;
 import entity.CountryLanguage;
 import io.lettuce.core.RedisClient;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import static java.util.Objects.nonNull;
@@ -32,22 +35,29 @@ public class Starter {
     }
 
     private RedisClient prepareRedisClient() {
+        return null;
+    }
 
-            if (nonNull(sessionFactory)) {
-                sessionFactory.close();
-            }
-            if (nonNull(redisClient)) {
-                redisClient.shutdown();
-            }
+    private void shutdown() {
+        if (nonNull(sessionFactory)) {
+            sessionFactory.close();
+        }
+        if (nonNull(redisClient)) {
+            redisClient.shutdown();
+        }
+    }
 
-        return redisClient;
+    public static void main(String[] args) {
+        Starter starter = new Starter();
+        List<City> allCities = starter.fetchData(starter);
+        starter.shutdown();
     }
 
     private SessionFactory prepareRelationalDb() {
         final SessionFactory sessionFactory;
         Properties properties = new Properties();
-        properties.put(Environment.DIALECT,"org.hibernate.dialect.MySQL8Dialect");
-        properties.put(Environment.DRIVER,"com.p6spy.engine.spy.P6SpyDriver");
+        properties.put(Environment.DIALECT, "org.hibernate.dialect.MySQL8Dialect");
+        properties.put(Environment.DRIVER, "com.p6spy.engine.spy.P6SpyDriver");
         properties.put(Environment.URL, "jdbc:p6spy:mysql://localhost:3306/world");
         properties.put(Environment.USER, "root");
         properties.put(Environment.PASS, "root");
@@ -63,5 +73,22 @@ public class Starter {
                 .buildSessionFactory();
 
         return sessionFactory;
+    }
+
+    private List<City> fetchData(Starter starter) {
+        try (Session session = starter.sessionFactory.getCurrentSession()) {
+            List<City> allCities = new ArrayList<>();
+            session.beginTransaction();
+
+            List<Country> countries = starter.countryDAO.getAll();
+
+            int totalCount = starter.cityDAO.getTotalCount();
+            int step = 500;
+            for (int i = 0; i < totalCount; i += step) {
+                allCities.addAll(starter.cityDAO.getItems(i,step));
+            }
+            session.getTransaction().commit();
+            return allCities;
+        }
     }
 }
