@@ -26,7 +26,7 @@ public class CountryLanguage {
 
     private String language;
 
-    @Column(name = "is_official", columnDefinition = "TINYINT(1)")
+    @Column(name = "is_official", columnDefinition = "BIT")
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private Boolean isOfficial;
 

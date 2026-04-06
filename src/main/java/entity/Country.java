@@ -35,7 +35,7 @@ public class Country {
     @Column(name = "life_expectancy")
     private BigDecimal lifeExpectancy;
     private BigDecimal gnp;
-    @Column(name = "gnp_id")
+    @Column(name = "gnpo_id")
     private BigDecimal gnpoId;
     @Column(name = "local_name")
     private String localName;
