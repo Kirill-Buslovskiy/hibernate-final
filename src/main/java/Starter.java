@@ -48,6 +48,22 @@ public class Starter {
         List<City> allCities = starter.fetchData(starter);
         List<CityCountry> preparedData = starter.transformData(allCities);
         starter.pushToRedis(preparedData);
+
+        starter.sessionFactory.close();
+
+        List<Integer> ids = List.of(645,3775,58,2727,1018,673,521,11,262,3978);
+
+        long startRedis = System.currentTimeMillis();
+        starter.testRedisData(ids);
+        long endRedis = System.currentTimeMillis();
+
+        long startMysql = System.currentTimeMillis();
+        starter.testMysqlData(ids);
+        long endMysql = System.currentTimeMillis();
+
+        System.out.printf("%s:\t%d ms\n", "Redis", (endRedis - startRedis));
+        System.out.printf("%s:\t%d ms\n", "MySQL", (endMysql - startMysql));
+
         starter.shutdown();
     }
 
