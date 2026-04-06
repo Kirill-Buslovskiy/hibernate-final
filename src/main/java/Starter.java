@@ -1,5 +1,4 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dao.CityDAO;
 import dao.CountryDAO;
@@ -15,7 +14,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
-import org.hibernate.dialect.Ingres9Dialect;
 import redis.CityCountry;
 import redis.Language;
 
@@ -68,7 +66,7 @@ public class Starter {
     }
 
     private void testRedisData(List<Integer> ids) {
-        try(StatefulRedisConnection<String, String> connection = redisClient.connect()) {
+        try (StatefulRedisConnection<String, String> connection = redisClient.connect()) {
             RedisCommands<String, String> sync = connection.sync();
             for (Integer id : ids) {
                 String value = sync.get(String.valueOf(id));
@@ -78,6 +76,17 @@ public class Starter {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    private void testMysqlData(List<Integer> ids) {
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            for (Integer id : ids) {
+                City city = cityDAO.getById(id);
+                Set<CountryLanguage> languages = city.getCountry().getLanguages();
+            }
+            session.getTransaction().commit();
         }
     }
 
