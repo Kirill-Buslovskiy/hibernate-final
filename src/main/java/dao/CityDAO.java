@@ -25,4 +25,10 @@ public class CityDAO {
 
         return Math.toIntExact(query.uniqueResult());
     }
+
+    public City getById(int id) {
+        Query<City> query = sessionFactory.getCurrentSession().createQuery("select c from City c join fetch c.country where c.id = :id", City.class);
+        query.setParameter("id", id);
+        return query.getSingleResult();
+    }
 }

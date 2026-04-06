@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dao.CityDAO;
 import dao.CountryDAO;
@@ -8,11 +9,13 @@ import entity.CountryLanguage;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.api.sync.RedisStringCommands;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
+import org.hibernate.dialect.Ingres9Dialect;
 import redis.CityCountry;
 import redis.Language;
 
@@ -61,6 +64,20 @@ public class Starter {
                 }
             }
 
+        }
+    }
+
+    private void testRedisData(List<Integer> ids) {
+        try(StatefulRedisConnection<String, String> connection = redisClient.connect()) {
+            RedisCommands<String, String> sync = connection.sync();
+            for (Integer id : ids) {
+                String value = sync.get(String.valueOf(id));
+                try {
+                    mapper.readValue(value, CityCountry.class);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
