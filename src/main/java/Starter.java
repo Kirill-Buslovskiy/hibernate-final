@@ -49,7 +49,7 @@ public class Starter {
         List<CityCountry> preparedData = starter.transformData(allCities);
         starter.pushToRedis(preparedData);
 
-        starter.sessionFactory.close();
+        starter.sessionFactory.getCurrentSession().close();
 
         List<Integer> ids = List.of(645,3775,58,2727,1018,673,521,11,262,3978);
 
